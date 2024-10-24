@@ -1,36 +1,43 @@
-h1{
-    font-family: 'Times New Roman', Times, serif;
-    color: blueviolet;
-    font-size: large;
-    text-align: left;
-    position: absolute;
-
+html {
+    background-color: rgb(140, 74, 121);
 }
 
-body{
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    height: 100vh;
-    padding-top: 100px;
+body {
+    height: 100%;
+    background-color: rgba(224, 36, 139, 0.622);
+}
+h1 {
+    position: relative;
+    color: white;
 }
 
-#div0{
-    width: 450px;
-    height: 450;
-    border: thin solid;
-    background-color: beige;
-    padding: 20px;
-    box-sizing: border-box;
-    margin-right: 100px;
-
+div {
+   position: absolute;
+    height: 80%;
+    width: 37%;
+    top: 100px;
 }
 
-#div1{ 
-    width: 450px;
-    height: 450px;
-    border: thin solid black;
-    background-color: beige;
-    padding: 20px;
-    box-sizing: none;
+#div0 {
+    background-color: rgb(145, 108, 135);
+    border-color: rgb(255, 255, 255);
+    border-style: solid;
+    margin-left: 10%;
+}
+
+#div1 {
+    background-color: rgba(80, 60, 81, 0.51);
+    border-color: rgb(255, 255, 255);
+    border-style: solid;
+    margin-left: 50%;  
+}
+
+span {
+    
+    position: fixed;
+    background-color: rgb(224, 255, 210);
+    border-color: black;
+    border-style: solid;
+    font-size: 20px;
+    padding: 5px;
 }
