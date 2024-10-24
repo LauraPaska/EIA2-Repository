@@ -1,0 +1,36 @@
+h1{
+    font-family: 'Times New Roman', Times, serif;
+    color: blueviolet;
+    font-size: large;
+    text-align: left;
+    position: absolute;
+
+}
+
+body{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    padding-top: 100px;
+}
+
+#div0{
+    width: 450px;
+    height: 450;
+    border: thin solid;
+    background-color: beige;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-right: 100px;
+
+}
+
+#div1{ 
+    width: 450px;
+    height: 450px;
+    border: thin solid black;
+    background-color: beige;
+    padding: 20px;
+    box-sizing: none;
+}
