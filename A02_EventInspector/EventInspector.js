@@ -1,4 +1,3 @@
-// Quellen: zusammenarbeit mit Lena Halder
 "use strict";
 var EventsInspector;
 (function (EventsInspector) {
