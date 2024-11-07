@@ -88,3 +88,8 @@ form {
     text-decoration: line-through; /* Durchgestrichen */
 }
 
+#deleteTask {
+    cursor: pointer;
+    color: red;
+    margin-left: 10px;
+}
