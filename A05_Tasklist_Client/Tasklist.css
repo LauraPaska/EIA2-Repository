@@ -1,9 +1,11 @@
+
 body {
     background-image: url(./Background.jpg);
     text-align: center;
     margin: 0;
     padding: 0;
 }
+
 
 h1 {
     color: rgb(251, 251, 251);
@@ -15,9 +17,12 @@ h1 {
     text-transform: uppercase;
 }
 
+
 h2 {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color: rgb(99, 37, 191);
 }
+
 
 .wrapper {
     position: relative;
@@ -27,16 +32,22 @@ h2 {
     margin: 20px auto;
     padding: 20px;
     box-sizing: border-box;
+    border-radius: 8px;
 }
+
 
 .box {
     background-color: rgb(238, 103, 195);
     padding: 10px;
+    border-radius: 5px;
 }
+
 
 #counterItem {
     color: rgb(99, 37, 191);
+    font-weight: bold;
 }
+
 
 form {
     display: flex;
@@ -44,25 +55,41 @@ form {
     gap: 10px;
 }
 
+
 #taskContainer {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.container {
+
+.task-item {
     background-color: white;
     padding: 8px;
     font-size: 0.9em;
-    border: solid 1px rgb(99, 99, 99);
+    border: 2px solid transparent;
     border-radius: 5px;
     box-sizing: border-box;
 }
+
+/* Aufgabe "Abgelaufen" - roter Rahmen */
+.task-item.expired {
+    border-color: red;
+    background-color: #ffdddd;
+}
+
+/* Aufgabe "In Bearbeitung" - grüner Rahmen */
+.task-item.in-progress {
+    border-color: green;
+    background-color: #ddffdd;
+}
+
 
 .task-details {
     display: flex;
     flex-direction: column;
 }
+
 
 .attribute-row {
     display: flex;
@@ -70,26 +97,29 @@ form {
     margin-bottom: 5px;
 }
 
-.container.expired {
-    background-color: #ffdddd;
+.task-item.completed {
+    background-color: #d4edda; 
+    text-decoration: line-through; 
+    opacity: 0.8;
 }
 
-.container.in-progress {
-    background-color: #ddffdd;
+
+.task-status {
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-top: 5px;
 }
 
-.creation-date {
-    font-size: 0.75em;
-    color: grey;
-}
-
-.container.completed {
-    background-color: #d4edda; /* Helle grüne Farbe für erledigte Aufgaben */
-    text-decoration: line-through; /* Durchgestrichen */
-}
 
 #deleteTask {
     cursor: pointer;
     color: red;
     margin-left: 10px;
+}
+
+
+.creation-date {
+    font-size: 0.75em;
+    color: grey;
 }
