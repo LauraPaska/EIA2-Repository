@@ -1,119 +1,178 @@
 window.addEventListener("load", initialize);
 
 interface Task {
-    name: string;
-    title: string;
-    deadline: string;
-    comment: string;
-    completed: boolean;
+    Product: string;
+    Amount: number;
+    Comment: string;
+    Checkboxdate: boolean;
 }
 
-// Initialisierungsfunktion zum Setzen der Event-Listener
+const serverUrl = "https://7c8644f9-f81d-49cd-980b-1883574694b6.fr.bw-cloud-instance.org/lpa41669/";
+const collection = "shopping_list"; // Name der Sammlung
+
+// Initialisierungsfunktion
 async function initialize(): Promise<void> {
-    const addButton = document.getElementById("addTaskButton") as HTMLButtonElement;
+    await checkAndCreateCollection(collection);
+
+    const addButton = document.getElementById("add") as HTMLButtonElement;
     addButton?.addEventListener("click", (event) => {
-        event.preventDefault(); // Verhindert das Neuladen der Seite
+        event.preventDefault();
         addItem();
     });
 
-    // Lade bestehende Aufgaben aus der JSON-Datei
-    const response = await fetch("data.json");
-    const data: Task[] = await response.json();
-    loadTasks(data);
+    const response = await fetch(`${serverUrl}?command=find&collection=${collection}`);
+    const result = await response.json();
+    if (result.status === "success") {
+        loadTasks(result.data); // Aufgaben laden
+    } else {
+        console.error("Fehler beim Laden der Daten:", result.data);
+    }
 }
 
-// Funktion zum Laden von Aufgaben aus JSON
-function loadTasks(tasks: Task[]): void {
-    tasks.forEach((task) => createTaskElement(task));
+// Prüft, ob die Sammlung existiert, und erstellt sie, falls nicht
+async function checkAndCreateCollection(collection: string): Promise<void> {
+    const response = await fetch(`${serverUrl}?command=show`);
+    const result = await response.json();
+    if (result.status === "success") {
+        const collections: string[] = result.data;
+        if (!collections.includes(collection)) {
+            console.log(`Collection "${collection}" existiert nicht. Erstelle...`);
+            await fetch(`${serverUrl}?command=create&collection=${collection}`);
+        } else {
+            console.log(`Collection "${collection}" existiert bereits.`);
+        }
+    } else {
+        console.error("Fehler beim Abrufen der Collections:", result.data);
+    }
 }
 
-// Funktion zum Erstellen eines neuen Aufgaben-Elements und Hinzufügen zum DOM
-function createTaskElement(task: Task): void {
-    const taskContainer = document.getElementById("taskContainer");
-    if (!taskContainer) return; // Prüft, ob der Container existiert
+// Lädt Aufgaben und zeigt sie an
+function loadTasks(tasks: Record<string, Task>): void {
+    Object.keys(tasks).forEach((id) => {
+        createTaskElement(id, tasks[id]);
+    });
+}
+
+// Erstellt ein neues Aufgaben-Element und fügt es zum DOM hinzu
+function createTaskElement(id: string, task: Task): void {
+    const outputContainer = document.getElementById("alloutputs") as HTMLDivElement;
+    if (!outputContainer) return;
 
     const taskElement = document.createElement("div");
-    taskElement.classList.add("task-item");
+    taskElement.classList.add("inputData");
 
-    // Setze den Zustand "abgelaufen" oder "in Bearbeitung" anhand der Deadline
-    const deadline = new Date(task.deadline);
-    if (deadline < new Date()) {
-        taskElement.classList.add("expired");
-    } else {
-        taskElement.classList.add("in-progress");
-    }
+    const today = new Date();
+    const nextPurchase = task.Checkboxdate ? " buy" : "";
 
-    // HTML für das neue Aufgaben-Element
+    // HTML-Inhalt
     taskElement.innerHTML = `
-        <div class="task-details">
-            <input type="checkbox" class="task-checkbox" ${task.completed ? "checked" : ""}>
-            <div><strong>Name:</strong> ${task.name}</div>
-            <div><strong>Title:</strong> ${task.title}</div>
-            <div><strong>Deadline:</strong> ${deadline.toLocaleDateString()}</div>
-            <div><strong>Comment:</strong> ${task.comment}</div>
-        </div>
-        <button class="delete-task-btn">Delete</button>
-        <button class="edit-task-btn">Edit</button>
+        ${today.toLocaleDateString()}   ${task.Product}   ${task.Amount}   ${task.Comment}   ${nextPurchase}
+        <input type="checkbox" class="checkbox1" ${task.Checkboxdate ? "checked" : ""}>
+        <div class="edit"><i id="edit" class="fa-regular fa-pen-to-square"></i></div>
+        <div><i id="trash" class="fa-solid fa-trash-can"></i></div>
     `;
 
-    // Checkbox-Event-Listener
-    const checkbox = taskElement.querySelector(".task-checkbox") as HTMLInputElement;
+    // Checkbox-Event
+    const checkbox = taskElement.querySelector(".checkbox1") as HTMLInputElement;
     checkbox.addEventListener("change", () => {
-        taskElement.classList.toggle("completed", checkbox.checked);
-        console.log("Item wurde abgehakt/wurde gekauft");
+        task.Checkboxdate = checkbox.checked;
+        updateTask(id, task);
     });
 
-    // Event-Listener für Lösch- und Bearbeitungsbutton
-    const deleteButton = taskElement.querySelector(".delete-task-btn") as HTMLButtonElement;
-    deleteButton.addEventListener("click", () => deleteItem(taskElement));
+    // Lösch-Button
+    const trash = taskElement.querySelector("#trash") as HTMLElement;
+    trash.addEventListener("click", () => deleteTask(taskElement, id));
 
-    const editButton = taskElement.querySelector(".edit-task-btn") as HTMLButtonElement;
-    editButton.addEventListener("click", () => editItem(taskElement, task));
+    // Bearbeitungs-Button
+    const edit = taskElement.querySelector("#edit") as HTMLElement;
+    edit.addEventListener("click", () => editTask(task, id));
 
-    taskContainer.appendChild(taskElement); // Aufgabe in den Container einfügen
+    outputContainer.appendChild(taskElement);
 }
 
-// Funktion zum Löschen eines Aufgaben-Elements
-function deleteItem(taskElement: HTMLDivElement): void {
-    taskElement.remove();
-    console.log("Item wird aus der Liste gelöscht");
-}
-
-// Funktion zum Bearbeiten eines Aufgaben-Elements
-function editItem(taskElement: HTMLDivElement, task: Task): void {
-    (document.getElementById("name") as HTMLInputElement).value = task.name;
-    (document.getElementById("title") as HTMLInputElement).value = task.title;
-    (document.getElementById("deadline") as HTMLInputElement).value = task.deadline;
-    (document.getElementById("comment") as HTMLInputElement).value = task.comment;
-    deleteItem(taskElement);
-    console.log("Item kann nun bearbeitet werden");
-}
-
-// Funktion zum Hinzufügen einer neuen Aufgabe
+// Fügt eine neue Aufgabe hinzu
 function addItem(): void {
-    const name = (document.getElementById("name") as HTMLInputElement).value;
-    const title = (document.getElementById("title") as HTMLInputElement).value;
-    const deadline = (document.getElementById("deadline") as HTMLInputElement).value;
-    const comment = (document.getElementById("comment") as HTMLInputElement).value;
+    const productInput = document.getElementById("inputproduct") as HTMLInputElement;
+    const amountInput = document.getElementById("amount") as HTMLInputElement;
+    const commentInput = document.getElementById("inputcomment") as HTMLInputElement;
+    const checkboxDate = document.getElementById("checkboxdate") as HTMLInputElement;
 
     const task: Task = {
-        name: name,
-        title: title,
-        deadline: deadline,
-        comment: comment,
-        completed: false,
+        Product: productInput.value,
+        Amount: Number(amountInput.value),
+        Comment: commentInput.value,
+        Checkboxdate: checkboxDate.checked,
     };
 
-    createTaskElement(task); // Fügt das neue Task-Element hinzu
-    console.log("Neues Item wird zur Liste hinzugefügt");
-
-    // Daten an den Server senden
-    sendData(task);
+    sendTaskToServer(task);
 }
 
-// Funktion zum Senden der Daten 
-async function sendData(task: Task): Promise<void> {
-    const query = new URLSearchParams(task as any);
-    await fetch("Tasklist.html?" + query.toString());
-    alert("Data sent");
+// Sendet eine neue Aufgabe an den Server
+async function sendTaskToServer(task: Task): Promise<void> {
+    const query = new URLSearchParams({
+        command: "insert",
+        collection: collection,
+        data: JSON.stringify(task),
+    });
+
+    const response = await fetch(`${serverUrl}?${query.toString()}`);
+    const result = await response.json();
+    if (result.status === "success") {
+        console.log("Aufgabe erfolgreich hinzugefügt:", result.data);
+        const id = result.data.id;
+        createTaskElement(id, task);
+    } else {
+        console.error("Fehler beim Hinzufügen:", result.data);
+    }
+}
+
+// Aktualisiert eine Aufgabe auf dem Server
+async function updateTask(id: string, task: Task): Promise<void> {
+    const query = new URLSearchParams({
+        command: "update",
+        collection: collection,
+        id: id,
+        data: JSON.stringify(task),
+    });
+
+    const response = await fetch(`${serverUrl}?${query.toString()}`);
+    const result = await response.json();
+    if (result.status === "success") {
+        console.log("Aufgabe erfolgreich aktualisiert:", result.data);
+    } else {
+        console.error("Fehler beim Aktualisieren:", result.data);
+    }
+}
+
+// Löscht eine Aufgabe auf dem Server
+async function deleteTask(taskElement: HTMLDivElement, id: string): Promise<void> {
+    const query = new URLSearchParams({
+        command: "delete",
+        collection: collection,
+        id: id,
+    });
+
+    const response = await fetch(`${serverUrl}?${query.toString()}`);
+    const result = await response.json();
+    if (result.status === "success") {
+        console.log("Aufgabe erfolgreich gelöscht:", result.data);
+        taskElement.remove();
+    } else {
+        console.error("Fehler beim Löschen:", result.data);
+    }
+}
+
+// Bearbeitet eine Aufgabe
+function editTask(task: Task, id: string): void {
+    const productInput = document.getElementById("inputproduct") as HTMLInputElement;
+    const amountInput = document.getElementById("amount") as HTMLInputElement;
+    const commentInput = document.getElementById("inputcomment") as HTMLInputElement;
+    const checkboxDate = document.getElementById("checkboxdate") as HTMLInputElement;
+
+    productInput.value = task.Product;
+    amountInput.value = task.Amount.toString();
+    commentInput.value = task.Comment;
+    checkboxDate.checked = task.Checkboxdate;
+
+    deleteTask(document.querySelector(`[data-id="${id}"]`) as HTMLDivElement, id);
 }
