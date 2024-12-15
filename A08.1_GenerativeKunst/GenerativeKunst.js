@@ -1,3 +1,4 @@
+"use strict";
 var L08_GenerativeKunst;
 (function (L08_GenerativeKunst) {
     window.addEventListener("load", fillCanvas);
@@ -6,24 +7,20 @@ var L08_GenerativeKunst;
     function fillCanvas(_event) {
         canvas = document.querySelector("canvas");
         crc2 = canvas.getContext("2d");
-
         // Leinwand leeren
         crc2.clearRect(0, 0, canvas.width, canvas.height);
-
         // Hintergrundmuster zeichnen
         zeichneHintergrundmuster();
-
         // Vordergrundformen zeichnen
         let anzahlObjekte = zufallsZahl(30, 150);
         for (let i = 0; i < anzahlObjekte; i++) {
             zeichneFließendeForm();
         }
-
         // Event für neuen Button
         let neuerButton = document.querySelector("button");
         neuerButton.addEventListener("click", fillCanvas);
     }
-
+    // Zeichnet spiralförmige Muster als Hintergrund
     function zeichneHintergrundmuster() {
         let farben = ["#2E4A62", "#8B572A", "#E8C547", "#A1D2CE", "#D9BF77"];
         let anzahlSpiralen = zufallsZahl(3, 6);
@@ -47,12 +44,13 @@ var L08_GenerativeKunst;
             crc2.restore();
         }
     }
-
+    // Zeichnet eine fließende Form im Vordergrund
     function zeichneFließendeForm() {
         let x = zufallsZahl(0, canvas.width);
         let y = zufallsZahl(0, canvas.height);
         crc2.save();
         crc2.translate(x, y);
+        // Farbverlauf für die Linien
         let gradient = crc2.createLinearGradient(-50, -50, 50, 50);
         gradient.addColorStop(0, zufallsFarbe());
         gradient.addColorStop(1, zufallsFarbe());
@@ -68,13 +66,13 @@ var L08_GenerativeKunst;
         }
         crc2.restore();
     }
-
+    // Gibt eine zufällige Zahl in einem Bereich zurück
     function zufallsZahl(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min) + min);
     }
-
+    // Gibt eine zufällige Farbe im Hexadezimal-Format zurück
     function zufallsFarbe() {
         let buchstaben = "0123456789ABCDEF";
         let farbe = "#";
@@ -84,3 +82,4 @@ var L08_GenerativeKunst;
         return farbe;
     }
 })(L08_GenerativeKunst || (L08_GenerativeKunst = {}));
+//# sourceMappingURL=GenerativeKunst.js.map
